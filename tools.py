@@ -1,4 +1,4 @@
-from endplay.types import Deal, Contract, Denom, Vul, Player, Card
+from endplay.types import Deal, Contract, Denom, Vul, Player, Card, Hand
 from endplay.dealer import generate_deal
 from endplay.dds.ddtable import calc_dd_table
 import numpy as np
@@ -97,6 +97,18 @@ def one_hot_hands(hand):
     for card in hand:
         ohe[cards_index[card]] = 1
     return ohe
+
+
+def ohe_to_hand(ohe_hand):
+    str_hand = ["", "", "", ""]
+    index_to_card = ['2', '3', '4', '5', '6',
+                     '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
+    for i in range(4):
+        for j in range(13):
+            if ohe_hand[i*13+j] == 1:
+                # Spades are first
+                str_hand[3-i] += index_to_card[j]
+    return Hand(".".join(str_hand))
 
 
 def generate_one_line():
