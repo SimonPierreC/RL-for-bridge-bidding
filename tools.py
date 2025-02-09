@@ -106,7 +106,7 @@ def ohe_to_hand(ohe_hand):
     for i in range(4):
         for j in range(13):
             if ohe_hand[i*13+j] == 1:
-                # Spades are first
+                # Spades are firsts
                 str_hand[3-i] += index_to_card[j]
     return Hand(".".join(str_hand))
 
