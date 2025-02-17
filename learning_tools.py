@@ -34,9 +34,7 @@ def perform_bids(x1, x2, scores,history, Q_models, nb_layers):
     bidding_history = history.copy()
     for i in range(num_ones, nb_layers):
         hand = x1 if (i+1) % 2 == 1 else x2  # Détermine la main en fonction du joueur actif
-        print("hand",hand)
         state = torch.tensor(hand, dtype=torch.float32) if i == 0 else torch.tensor(np.concatenate([hand, bidding_history]), dtype=torch.float32)
-        print("state",state)
 
         highest_bid = np.max(np.where(bidding_history == 1)) if np.any(bidding_history == 1) else -1
 
@@ -48,7 +46,6 @@ def perform_bids(x1, x2, scores,history, Q_models, nb_layers):
         q_values_masked[:highest_bid+1] = -float('inf')
         
         next_a = torch.argmax(q_values_masked).item()  # sélection greedy max(Q)   a mettre la regle next_a>derniere enchere
-        print("next_a",next_a)
         bidding_history[next_a] = 1  # met à jour l'historique des enchères
 
         if next_a == len(bidding_history) - 1 or i == nb_layers - 1:
