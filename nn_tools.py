@@ -14,7 +14,7 @@ class Qfirst(nn.Module):
         self.fc3 = nn.Linear(hidden_dim, hidden_dim)
         self.fc4 = nn.Linear(hidden_dim, output_dim)
         self._init_weights()
-
+        
     def _init_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):

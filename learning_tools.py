@@ -29,29 +29,30 @@ def update(D, state, C, j):
     return D
 
 
-def perform_bids(x1, x2, scores, bidding_history, Q_models, nb_layers):
-    num_ones = np.count_nonzero(bidding_history == 1)
-    last_layer = nb_layers - 1
-
+def perform_bids(x1, x2, scores,history, Q_models, nb_layers):
+    num_ones = np.count_nonzero(history == 1)
+    bidding_history = history.copy()
     for i in range(num_ones, nb_layers):
-        # Détermine la main en fonction du joueur actif
-        hand = x1 if (i+1) % 2 == 1 else x2
+        hand = x1 if (i+1) % 2 == 1 else x2  # Détermine la main en fonction du joueur actif
+        print("hand",hand)
+        state = torch.tensor(hand, dtype=torch.float32) if i == 0 else torch.tensor(np.concatenate([hand, bidding_history]), dtype=torch.float32)
+        print("state",state)
 
-        state = torch.tensor(hand, dtype=torch.float32) if i == 0 else torch.tensor(
-            np.concatenate([hand, bidding_history]), dtype=torch.float32)
+        highest_bid = np.max(np.where(bidding_history == 1)) if np.any(bidding_history == 1) else -1
 
         # passer l'état dans le modèle Q[i] et obtenir les valeurs Q[i]
         with torch.no_grad():
-            # prédiction du modèle Q[i] pour le state
-            q_values = Q_models[i](state)
+            q_values = Q_models[i](state)  # prédiction du modèle Q[i] pour le state
 
-            # sélection greedy max(Q)   a mettre la regle next_a>derniere enchere
-            next_a = torch.argmax(q_values).item()
-
+        q_values_masked = q_values.clone()
+        q_values_masked[:highest_bid+1] = -float('inf')
+        
+        next_a = torch.argmax(q_values_masked).item()  # sélection greedy max(Q)   a mettre la regle next_a>derniere enchere
+        print("next_a",next_a)
         bidding_history[next_a] = 1  # met à jour l'historique des enchères
 
         if next_a == len(bidding_history) - 1 or i == nb_layers - 1:
-            last_action = next_a  # sauvegarde de la dernière action valide
+            last_action = next_a  # sauvegarde de la dernière action 
             last_layer = i
             return scores[last_action], last_layer
 
