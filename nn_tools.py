@@ -99,7 +99,56 @@ def one_epoch_layers(layers_Q, D_by_layers, opti_list, loss=MSELoss(), batch_siz
     """
     loss_by_layers = []
     for t, d_t in enumerate(D_by_layers):
-        train_loader = prepare_data(d_t[0], d_t[1], batch_size)
-        loss_by_layers.append(perform_one_epoch(
-            layers_Q[t], train_loader, loss, opti_list[t], device))
+        if d_t[1].shape[0] > 0:
+            train_loader = prepare_data(d_t[0], d_t[1], batch_size)
+            loss_by_layers.append(perform_one_epoch(
+                layers_Q[t], train_loader, loss, opti_list[t], device))
     return loss_by_layers
+
+
+class EarlyStopping():
+    def __init__(self, min_delta, patience):
+        self.best_weights = None
+        self.best_loss = None
+        self.loss = None
+        self.epochs_no_impr = 0
+        self.min_delta = min_delta
+        self.patience = patience
+
+    def test_stop(self, loss, weights):
+        if self.loss is None:
+            self.loss = loss
+        if self.best_weights is None:
+            self.best_weights = weights
+
+        if self.loss - loss > self.min_delta:
+            self.epochs_no_impr = 0
+            self.best_weights, self.best_loss = weights, loss
+            self.loss = loss
+            return False
+        if self.epochs_no_impr + 1 >= self.patience:
+            return True
+        self.epochs_no_impr += 1
+        self.loss = loss
+        return False
+
+    def set_best_wieghts(self, model):
+        model.load_state_dict(self.best_weights)
+
+
+class EarlyStoppingList(EarlyStopping):
+    def __init__(self, min_delta_list, patience_list):
+        super().__init__(min_delta_list, patience_list)
+        self.e_s_list = [EarlyStopping(min_delta_list[k], patience_list[k])
+                         for k in range(len(min_delta_list))]
+
+    def test_stop(self, loss_list, weights_list):
+        output = True
+        for i, e_s in enumerate(self.e_s_list):
+            if not e_s.test_stop(loss_list[i], weights_list[i]):
+                output = False
+        return output
+
+    def set_best_weights(self, models_list):
+        for i, model in enumerate(models_list):
+            self.e_s_list[i].set_best_wieghts(model)
