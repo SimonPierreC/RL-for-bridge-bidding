@@ -13,6 +13,13 @@ class Qfirst(nn.Module):
         self.fc2 = nn.Linear(hidden_dim, hidden_dim)
         self.fc3 = nn.Linear(hidden_dim, hidden_dim)
         self.fc4 = nn.Linear(hidden_dim, output_dim)
+        self._init_weights()
+        
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                m.weight.data.uniform_(-0.1, 0.1)
+                m.bias.data.uniform_(-0.1, 0.1)
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
