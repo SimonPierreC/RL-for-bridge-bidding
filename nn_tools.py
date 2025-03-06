@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from torch.nn import MSELoss
 from torch import from_numpy
 from torch.utils.data import DataLoader, TensorDataset
+import numpy as np
 
 
 class Qfirst(nn.Module):
@@ -142,6 +143,8 @@ def one_batch_layers(layers_Q, D_by_layers, opti_list, loss=MSELoss(), batch_siz
             train_loader = prepare_data(d_t[0], d_t[1], batch_size)
             loss_by_layers.append(train_one_batch(
                 layers_Q[t], train_loader, loss, opti_list[t], device))
+        else:
+            loss_by_layers.append(np.nan)
     return loss_by_layers
 
 
