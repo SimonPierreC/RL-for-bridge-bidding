@@ -59,8 +59,19 @@ def perform_bids(x1, x2, scores, history, Q_models, nb_layers):
             return scores[last_action], last_layer
 
 
+def legal_bid(action, bidding_history):
+    if np.count_nonzero(bidding_history) == 0:
+        return True
+    last_bid = np.max(np.where(bidding_history == 1))
+    if action > last_bid:
+        return True
+    return False
+
+
 def algo_p(action, x1, x2, scores, bidding_history, Q_models, nb_layers):
     updated_bid_history = bidding_history.copy()
+    if not legal_bid(action, bidding_history):
+        return -0.2
     updated_bid_history[action] = 1
     if np.count_nonzero(updated_bid_history) == nb_layers:
         return scores[action]
