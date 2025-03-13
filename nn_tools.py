@@ -26,7 +26,7 @@ class Qfirst(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
-        return self.fc4(x)
+        return F.sigmoid(self.fc4(x))
 
 
 class Qfollowing(nn.Module):
@@ -48,7 +48,7 @@ class Qfollowing(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
-        return self.fc4(x)
+        return F.sigmoid(self.fc4(x))
 
 
 def define_Q(number_of_layers):
@@ -84,7 +84,7 @@ def prepare_data(states, targets, batch_size):
 
 
 def optimiers_list(layers_Q):
-    return [RMSprop(model.parameters(), lr=0.83, alpha=0.98, momentum=0.82) for model in layers_Q]
+    return [RMSprop(model.parameters(), lr=0.83, alpha=0.05, momentum=0.82, weight_decay=0.98) for model in layers_Q]
 
 
 def one_epoch_layers(layers_Q, D_by_layers, opti_list, loss=MSELoss(), batch_size=50, device="cpu"):
