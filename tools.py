@@ -50,7 +50,7 @@ def mean_scores(north, south, N=5):
                      for d in deals]
     score_means = {}
     for p in [Player.north, Player.south]:
-        score_means[p] = np.mean(np.concat([r[p].reshape(1, -1) for r in score_results], axis=0),
+        score_means[p] = np.mean(np.concatenate([r[p].reshape(1, -1) for r in score_results], axis=0),
                                  axis=0)
     return score_means
 
