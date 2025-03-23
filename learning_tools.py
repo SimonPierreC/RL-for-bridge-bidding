@@ -87,7 +87,7 @@ def algo_p(action, x1, x2, scores, bidding_history, Q_models, nb_layers):
     return final_score
 
 
-def assess_models(Q_models, data_set):
+def assess_models(Q_models, data_set, return_counts=False):
     scores_layers = [0 for k in range(len(Q_models))]
     N_layers = [0 for k in range(len(Q_models))]
     for k in range(len(data_set)):
@@ -97,4 +97,6 @@ def assess_models(Q_models, data_set):
         score, last_layer = bid_results(bids, r)
         scores_layers[last_layer] += score
         N_layers[last_layer] += 1
+    if return_counts:
+        return np.array(scores_layers)/np.array(N_layers), np.array(N_layers)
     return np.array(scores_layers)/np.array(N_layers)
