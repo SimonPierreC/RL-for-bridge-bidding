@@ -111,6 +111,14 @@ def ohe_to_hand(ohe_hand):
     return Hand(".".join(str_hand))
 
 
+def ohe_to_bid(ohe_bids):
+    list_bids = [str(1+(i-1)//5) +
+                 {0: "C", 1: "D", 2: "H", 3: "S", 4: "nt"}[(i-1) % 5]
+                 for i in np.where(ohe_bids == 1)[0]
+                 if i != 0]
+    return list_bids + ["Pass"]
+
+
 def generate_one_line():
     north, south = random_two_hands()
     rewards = reward_from_cost(
